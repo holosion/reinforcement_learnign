@@ -4,13 +4,12 @@ import os
 import pygame
 import gymnasium as gym
 from stable_baselines3 import PPO
-from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.evaluation import evaluate_policy
 
 
 # Train without rendering so the training loop is not slowed by pygame.
 log_path = os.path.join('Training', 'Logs')# create a path to save the logs
-train_env = DummyVecEnv([lambda: gym.make('CartPole-v1')]) # this creates a vectorized environment with a single instance of the CartPole-v1 environment. The lambda function is used to create a new instance of the environment each time it is called, which is necessary for the DummyVecEnv to work correctly.
+train_env = gym.make('CartPole-v1')
 
 model = PPO('MlpPolicy', train_env, verbose=1, tensorboard_log=log_path)
 model.learn(total_timesteps=20000, progress_bar=True)
