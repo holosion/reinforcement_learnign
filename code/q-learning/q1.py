@@ -8,32 +8,31 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.evaluation import evaluate_policy
 
 
-# loading up the environment
-env = gym.make('CartPole-v1', render_mode='human')
-episodes = 5
-for episode in range(1, episodes + 1):
-    state, info = env.reset()# reset the environment to start a new episode
+# Train without rendering so the training loop is not slowed by pygame.
+log_path = os.path.join('Training', 'Logs')# create a path to save the logs
+train_env = DummyVecEnv([lambda: gym.make('CartPole-v1')]) # this creates a vectorized environment with a single instance of the CartPole-v1 environment. The lambda function is used to create a new instance of the environment each time it is called, which is necessary for the DummyVecEnv to work correctly.
+
+model = PPO('MlpPolicy', train_env, verbose=1, tensorboard_log=log_path)
+model.learn(total_timesteps=20000, progress_bar=True)
+model.save('Training/cartpole_ppo')
+train_env.close()
+
+# Evaluate the trained model in a fresh environment with a visible window.
+eval_env = gym.make('CartPole-v1', render_mode='human')
+for episode in range(1, 6):
+    observation, info = eval_env.reset()
     done = False
     score = 0
 
-    while not done: # while the episode is not done, keep taking actions
-        action = env.action_space.sample() # take a random action from the action space
-        n_state, reward, terminated, truncated, info = env.step(action) # take a step in the environment using the action
+    while not done:
+        action, _states = model.predict(observation, deterministic=True)
+        observation, reward, terminated, truncated, info = eval_env.step(action)
         done = terminated or truncated
         score += reward
-    print('Episode {} score {}'.format(episode, score))
 
-env.close()
+    print('Evaluation episode {} score {}'.format(episode, score))
 
-env.observation_space
-env.observation_space.sample() # sample a random observation from the observation space
-
-#traing the model using ppo algorithm
-log_path = os.path.join('Training', 'Logs')# create a path to save the logs
-env = DummyVecEnv([lambda: env])# wrap the environment in a DummyVecEnv to make it compatible with stable-baselines3
-
-model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=log_path)
-model.learn(total_timesteps=20000) #train the model for 20000 timesteps
+eval_env.close()
 
 
 
