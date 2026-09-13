@@ -28,5 +28,12 @@ env.close()
 env.observation_space
 env.observation_space.sample() # sample a random observation from the observation space
 
+#traing the model using ppo algorithm
+log_path = os.path.join('Training', 'Logs')# create a path to save the logs
+env = DummyVecEnv([lambda: env])# wrap the environment in a DummyVecEnv to make it compatible with stable-baselines3
+
+model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=log_path)
+model.learn(total_timesteps=20000) #train the model for 20000 timesteps
+
 
 
