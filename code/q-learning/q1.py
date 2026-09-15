@@ -30,6 +30,15 @@ for episode in range(1, 6):
         score += reward
 
     print('Evaluation episode {} score {}'.format(episode, score))
+    
+    
+# SAVING OUR MODEL INTO OUR TRAINING FOLDER
+PPO_Path = os.path.join('Training', 'savedmodel', 'PPO_Model_Cartpole')
+model.save(PPO_Path)
+
+
+#CARRYING OUT TESTS AND EVALUATIONS ON THE MODEL
+evaluate_policy(model, train_env, n_eval_episodes = 10, render=True)
 
 eval_env.close()
 
