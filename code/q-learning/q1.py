@@ -58,6 +58,17 @@ evaluate_policy(model, eval_env, n_eval_episodes=10, render=True)
 stop_callback = StopTrainingOnRewardThreshold(reward_threshold=200, verbose=1)
 eval_callback = EvalCallback(eval_env, callback_on_new_best=stop_callback, eval_freq=1000, best_model_save_path = PPO_Path)
 
+#changing the policies
+net_arch=[dict(pi=[128,128,128,128], vf=[128,128,128,128])]
+model = PPO(
+    'MlpPolicy',
+    train_env,
+    verbose=1,
+    tensorboard_log=log_path,
+    policy_kwargs=dict(net_arch=net_arch)
+)
+
+
 eval_env.close()
 
 # View the logs in TensorBoard
