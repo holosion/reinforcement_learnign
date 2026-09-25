@@ -5,6 +5,10 @@ import pygame
 from stable_baselines3 import PPO
 from stable_baselines3.common.evaluation import evaluate_policy
 
+# importing dependecies for applying the callbacks 
+from stable_baselines3.common.callbacks import BaseCallback, EvalCallback, StopTrainingOnRewardThreshold
+
+
 # Create a path to save the logs
 log_path = os.path.join('Training', 'Logs')
 os.makedirs(log_path, exist_ok=True)
@@ -49,6 +53,10 @@ model.save(PPO_Path)
 
 # Evaluate the model using evaluate_policy
 evaluate_policy(model, eval_env, n_eval_episodes=10, render=True)
+
+#setting up the callback
+stop_callback = StopTrainingOnRewardThreshold(reward_threshold=200, verbose=1)
+eval_callback = EvalCallback(eval_env, callback_on_new_best=stop_callback, eval_freq=1000, best_model_save_path = PPO_Path)
 
 eval_env.close()
 
